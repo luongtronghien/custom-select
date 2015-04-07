@@ -97,14 +97,32 @@
         createWrap(element, wrap, span, link);
         createList(options, ul);
         loadText(element, '.' + classWrap + '> span');
+        $('html').on('click', function(event){
+          var target = $(event.target).closest('.' + classWrap);
+          if(target.length < 1){
+            showHideDropdown('.' + dropdowClass, 'hl-hidden', true);
+          }
+        });
         element.parent().on('click', function(event){
-          var that = $(this);
-          styleDropdown('.' + dropdowClass, that.offset().left, that.offset().top, that.innerHeight(), that.innerWidth());
+          var that = $(this),
+            leftE = that.offset().left,
+            topE = that.offset().top;
+          
+          $(window).on('resize', function(){
+            var statusDrop = $('.hl-sel-dropdown').is(':visible');
+            if(statusDrop){
+              leftE = that.offset().left;
+              topE = that.offset().top;
+              styleDropdown('.' + dropdowClass, leftE, topE, that.innerHeight(), that.innerWidth());
+            }
+          });
+          styleDropdown('.' + dropdowClass, leftE, topE, that.innerHeight(), that.innerWidth());
           showHideDropdown('.' + dropdowClass, 'hl-hidden');
         });
         $('.' + dropdowClass).on('click.li', 'li', function(e){
           selectTextDropdown(element, '.' + classWrap + '> span', $(this), '.' + dropdowClass + '> li', '.' + dropdowClass);
         });
+
       }
     },
     publicMethod: function(params) {
