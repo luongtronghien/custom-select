@@ -1,0 +1,68 @@
+// Plugin
+.hl-select {
+  cursor: pointer;
+  margin: 0 auto;
+  width: 250px;
+  position: relative;
+  background-color: #fff;
+  border: 1px solid #525252;
+  .border-radius(6px);
+  > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    line-height: 20px;
+    padding: 7px 25px 7px 10px;
+  }
+  > a {
+    display: block;
+    .square(0);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 12px solid #525252;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    margin-top: -6px;
+    z-index: 1;
+  }
+  select {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 34px;
+    border: none;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    .reset-appearance();
+  }
+}
+.hl-hidden {
+  display: none;
+}
+.hl-show {
+  display: block;
+}
+.hl-sel-dropdown {
+  position: absolute;
+  margin-top: 2px;
+  padding: 3px;
+  .border-radius(6px);
+  box-sizing: border-box;
+  background-color: #fff;
+  > li {
+    padding: 5px;
+    outline: 1px solid #fff;
+    &:hover, &.active {
+      background-color: #525252;
+      .border-radius(6px);
+      color: #fff;
+      cursor: pointer;
+    }
+    & + li {
+      // margin-top: 5px;
+    }
+  }
+}

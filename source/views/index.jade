@@ -1,0 +1,14 @@
+extends layouts/layout
+
+block vars
+  -title = 'Homepage'
+  -bodyClass = 'home'
+  -menuIndex = 0
+
+block container
+  .inner
+    include blocks/sidebar
+    main#main
+      #myDiv
+        h2 Let Ajax change text
+        button#btn-change(type="buton") Change Content

@@ -1,0 +1,70 @@
+// Mixin
+
+// PX to EM
+.font-size(@target: @basefont, @default: @basefont) {
+  font-size: round((@target / @default), 3) + 0em;
+}
+
+// Sizing shortcuts
+.size(@width, @height) {
+  width: @width;
+  height: @height;
+}
+
+.square(@size) {
+  .size(@size, @size);
+}
+
+// Center-align a block level element
+.center-block() {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.border-radius(@border){
+  border-radius: @border;
+  -ms-border-radius: @border;
+  -moz-border-radius: @border;
+  -webkit-border-radius: @border;
+  -o-border-radius: @border;
+}
+// Placeholder text
+.placeholder(@color: @placeholder-color) {
+  &:-moz-placeholder {
+    color: @color;
+  }
+  &::-moz-placeholder {
+    color: @color;
+  }
+  &:-ms-input-placeholder {
+    color: @color;
+  }
+  &::-webkit-input-placeholder {
+    color: @color;
+  }
+}
+
+// Text overflow
+.text-overflow() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Clearfix
+.clearfix() {
+  &:before, &:after {
+    display: table;
+    content: "";
+  }
+  &:after {
+    clear: both;
+  }
+}
+
+.reset-appearance() {
+  -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
