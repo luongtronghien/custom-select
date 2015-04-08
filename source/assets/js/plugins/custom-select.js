@@ -18,7 +18,6 @@
 
   function createList(options, ul){
     var that = $(this);
-    console.log(that.element);
     var list = [];
     for(i = 0, len = options.length; i < len; i++){
       var getOption = $(options[i]);
