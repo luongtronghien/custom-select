@@ -5,11 +5,33 @@ mixin custom-input(Obj, customAttr, attrI)
     span&attributes(attributes)
       input(type=Obj.type, name="#{typeof(Obj.name) === 'undefined' ? Obj.id : Obj.name}", id="#{Obj.id}")&attributes(attrInput)
     label(for="#{Obj.id}")!=Obj.label
+
 mixin select(arr, selected)
   select&attributes(attributes)
     each val, index in arr
-      -if(index === selected){
-        option(value="#{index}", selected)!=val
+      -if(selected){
+        -if(index === selected){
+          option(value=index, selected)!=val
+        -}else{
+          option(value=index)!=val
+        -}
       -}else{
-        option(value="#{index}")!=val
+        optgroup(label=val.label)
+          each value, index in val.groupDetails
+            -if(val.selected === index){
+              option(value=index, selected)!=value
+            -}else{
+              option(value=index)!=value
+            -}
       -}
+
+//- mixin select-group(arr)
+//-   select&attributes(attributes)
+//-     for group in arr
+//-       optgroup(label=group.label)
+//-         each value, index in group.groupDetails
+//-           -if(group.selected === index){
+//-             option(value=index, selected)!=value
+//-           -}else{
+//-             option(value=index)!=value
+//-           -}

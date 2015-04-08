@@ -10,12 +10,15 @@
  *    init
  *    publicMethod
  *    destroy
+ 
  */
 ;(function($, window, undefined) {
   var pluginName = 'hl-select';
   var privateVar = null;
 
   function createList(options, ul){
+    var that = $(this);
+    console.log(that.element);
     var list = [];
     for(i = 0, len = options.length; i < len; i++){
       var getOption = $(options[i]);
@@ -32,12 +35,20 @@
     .before(link);
   }
 
-  function styleDropdown(dropdowClass, x, y, heightE, widthE){
-    $(dropdowClass).css({
-      'left': x,
-      'top': y + heightE,
-      'minWidth': widthE
-    });
+  function styleDropdown(dropdowClass, x, y, heightE, widthE, bottomView){
+    if($(dropdowClass).outerHeight() > bottomView){
+      $(dropdowClass).css({
+        'left': x,
+        'top': y - $(dropdowClass).outerHeight(),
+        'minWidth': widthE
+      }).addClass('top');  
+    }else{
+      $(dropdowClass).css({
+        'left': x,
+        'top': y + heightE,
+        'minWidth': widthE
+      }).removeClass('top');
+    }
   }
 
   function showHideDropdown(dropdowClass, className, status){
@@ -92,7 +103,7 @@
         span = '<span>' + selectText + '</span>',
         ul = '<ul class="' + dropdowClass + ' hl-hidden"></ul>',
         options = element.find('option');
-
+            
       if(element.length){
         createWrap(element, wrap, span, link);
         createList(options, ul);
@@ -106,23 +117,26 @@
         element.parent().on('click', function(event){
           var that = $(this),
             leftE = that.offset().left,
-            topE = that.offset().top;
-          
+            topE = that.offset().top,
+            topView = topE - $(window).scrollTop(),
+            bottomView = $(window).height() - topView - that.outerHeight();
+
           $(window).on('resize', function(){
-            var statusDrop = $('.hl-sel-dropdown').is(':visible');
+            var statusDrop = $('.' + dropdowClass).is(':visible');
             if(statusDrop){
               leftE = that.offset().left;
               topE = that.offset().top;
-              styleDropdown('.' + dropdowClass, leftE, topE, that.innerHeight(), that.innerWidth());
+              topView = topE - $(window).scrollTop();
+              bottomView = $(window).height() - topView - that.outerHeight();
+              styleDropdown('.' + dropdowClass, leftE, topE, that.outerHeight(), that.outerWidth(), bottomView);
             }
           });
-          styleDropdown('.' + dropdowClass, leftE, topE, that.innerHeight(), that.innerWidth());
+          styleDropdown('.' + dropdowClass, leftE, topE, that.outerHeight(), that.outerWidth(), bottomView);
           showHideDropdown('.' + dropdowClass, 'hl-hidden');
         });
         $('.' + dropdowClass).on('click.li', 'li', function(e){
           selectTextDropdown(element, '.' + classWrap + '> span', $(this), '.' + dropdowClass + '> li', '.' + dropdowClass);
         });
-
       }
     },
     publicMethod: function(params) {

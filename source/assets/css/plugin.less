@@ -9,6 +9,7 @@
   .border-radius(6px);
   > span {
     overflow: hidden;
+    white-space: nowrap;
     text-overflow: ellipsis;
     display: block;
     line-height: 20px;
@@ -46,8 +47,8 @@
   display: block;
 }
 .hl-sel-dropdown {
+  box-shadow: 0px 0px 5px rgba(0,0,0, 0.3);
   position: absolute;
-  margin-top: 2px;
   padding: 3px;
   .border-radius(6px);
   box-sizing: border-box;
@@ -60,9 +61,6 @@
       .border-radius(6px);
       color: #fff;
       cursor: pointer;
-    }
-    & + li {
-      // margin-top: 5px;
     }
   }
 }
