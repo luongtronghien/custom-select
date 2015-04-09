@@ -49,11 +49,12 @@
 .hl-sel-dropdown {
   box-shadow: 0px 0px 5px rgba(0,0,0, 0.3);
   position: absolute;
+  z-index: 9999;
   padding: 3px;
   .border-radius(6px);
   box-sizing: border-box;
   background-color: #fff;
-  > li {
+  > li, .hl-sel-dropdown-inner > li {
     padding: 5px;
     outline: 1px solid #fff;
     &:hover, &.active {
@@ -61,6 +62,20 @@
       .border-radius(6px);
       color: #fff;
       cursor: pointer;
+    }
+    &.hl-optgroup {
+      padding: 0;
+      outline: none;
+      &:hover, &.active {
+        background-color: transparent;
+        .border-radius(6px);
+        color: #525252;
+        cursor: default;
+      }
+      strong {
+        display: block;
+        padding: 5px 3px;
+      }
     }
   }
 }
