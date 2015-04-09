@@ -10,64 +10,71 @@
  *    init
  *    publicMethod
  *    destroy
- 
+
  */
 ;(function($, window, undefined) {
   var pluginName = 'hl-select';
   var privateVar = null;
 
-  function initStructure(select, outer, span, arrow){
+  function initStructure(that, outer, span, arrow){
+    var select = that.element;
     select
       .wrap(outer)
       .before(span)
       .before(arrow);
   }
 
-  function createList(select){
+  function createList(that){
+    var select = that.element;
     var options = $(select).find('option'),
       ul = '<ul class="hl-sel-dropdown hl-hidden"></ul>',
-      list = [];
-
-    for(i = 0, len = options.length; i < len; i++){
+      list = [],
+      len = options.length;
+    for(i = 0; i < len; i++){
       var getOption = $(options[i]);
       li = '<li data-text-option="' + getOption.attr('value') + '" class="' + (getOption.is(':selected') ? 'active' : '') + '">' + getOption.text() + '</li>';
       list.push(li);
     }
 
-    $('body').append($(ul).append(list));
+     that.ulTag = $(ul).append(list);
+     $('body').append(that.ulTag);
   }
 
-  function styleDropdown(x, y, heightE, widthE, bottomView){
-    if($('.hl-sel-dropdown').outerHeight() > bottomView){
-      $('.hl-sel-dropdown').css({
-        'left': x,
-        'top': y - $('.hl-sel-dropdown').outerHeight(),
-        'minWidth': widthE
-      }).addClass('top');  
+  function positionDropdown(that, posX, posY, heightS, widthS, bottomView){
+    var ul = that.ulTag,
+      heightUl = ul.outerHeight();
+    if(heightUl > bottomView){
+      $(ul).css({
+        'left': posX,
+        'top': posY - heightUl,
+        'minWidth': widthS
+      }).addClass('top');
     }else{
-      $('.hl-sel-dropdown').css({
-        'left': x,
-        'top': y + heightE,
-        'minWidth': widthE
+      $(ul).css({
+        'left': posX,
+        'top': posY + heightS,
+        'minWidth': widthS
       }).removeClass('top');
     }
   }
 
-  function showHideDropdown(className, status){
-    var dropDown = $('.hl-sel-dropdown');
-    if(status){
-      if(status === false){
-        dropDown.removeClass(className);
-      }else{
-        dropDown.addClass(className);
+  function controlClass(that, status){
+    var dropDown = that.ulTag;
+    if(status !== 'toggle'){
+      if(status === 'remove'){
+        dropDown.removeClass('hl-hidden');
       }
-    }else{
-      dropDown.toggleClass(className);
+      else {
+        dropDown.addClass('hl-hidden');
+      }
+    }
+    else {
+      dropDown.toggleClass('hl-hidden');
     }
   }
 
   function loadText(select){
-    var that = $(select), 
+    var that = $(select),
       options = that.find('option'),
       span = that.siblings('span');
     $(span).text(options.filter(function(){
@@ -75,10 +82,12 @@
     }).text());
   }
 
-  function selectTextDropdown(select, self){
-    var that = $(select),
-      options = that.find('option'),
-      span = that.siblings('span');
+  function selectTextDropdown(that){
+    var self = $(this),
+      select = that.element,
+      options = select.find('option'),
+      span = select.siblings('span');
+
     $(span).text(self.text());
     $(options).attr('selected', false);
     for(var i = 0, len = options.length; i < len; i++){
@@ -88,7 +97,7 @@
     }
     $(self).siblings('li').removeClass('active');
     self.addClass('active');
-    showHideDropdown('hl-hidden', true);
+    controlClass(that, 'add');
   }
 
   function Plugin(element, options) {
@@ -101,48 +110,49 @@
     init: function() {
       var that = this,
         element = that.element,
+        doc = $(document);
         classWrap = that.options.classWrap,
         selectText = that.options.selectText,
         outer = '<div class="' + classWrap + '"></div>',
         arrow = '<a href="javascript:void(0);">&nbsp;</a>',
         span = '<span>' + selectText + '</span>';
 
-        console.log($(element).length);
-
-      if(element.length){
-        initStructure(element, outer, span, arrow);
-        createList(element);
+        initStructure(that, outer, span, arrow);
+        that.wrapper = element.parent();
+        createList(that);
         loadText(element);
-        $('html').off('click.out').on('click.out', function(event){
-          var target = $(event.target).closest('.' + classWrap);
-          if(target.length < 1){
-            showHideDropdown('hl-hidden', true);
-          }
-        });
-        element.parent().on('click', function(event){
-          var that = $(this),
-            leftE = that.offset().left,
-            topE = that.offset().top,
-            topView = topE - $(window).scrollTop(),
-            bottomView = $(window).height() - topView - that.outerHeight();
 
-          $(window).on('resize', function(){
-            var statusDrop = $('.hl-sel-dropdown').is(':visible');
-            if(statusDrop){
-              leftE = that.offset().left;
-              topE = that.offset().top;
-              topView = topE - $(window).scrollTop();
-              bottomView = $(window).height() - topView - that.outerHeight();
-              styleDropdown(leftE, topE, that.outerHeight(), that.outerWidth(), bottomView);
+        that.wrapper.off('click.wrap').on('click.wrap', function() {
+          doc.off('click.out').on('click.out', function(evt){
+            var target = $(evt.target).closest('.' + classWrap);
+            if(target.length < 1){
+              controlClass(that, 'add');
             }
           });
-          styleDropdown(leftE, topE, that.outerHeight(), that.outerWidth(), bottomView);
-          showHideDropdown('hl-hidden');
+
+          var wrapper = $(this),
+            posX = wrapper.offset().left,
+            posY = wrapper.offset().top,
+            topView = posY - $(window).scrollTop(),
+            bottomView = $(window).height() - topView - wrapper.outerHeight();
+
+          $(window).off('resize.drop').on('resize.drop', function(){
+            var statusDrop = $(that.ulTag).is(':visible');
+            if(statusDrop){
+              posX = wrapper.offset().left;
+              posY = wrapper.offset().top;
+              topView = posY - $(window).scrollTop();
+              bottomView = $(window).height() - topView - wrapper.outerHeight();
+              positionDropdown(that, posX, posY, wrapper.outerHeight(), wrapper.outerWidth(), bottomView);
+            }
+          });
+
+          positionDropdown(that, posX, posY, wrapper.outerHeight(), wrapper.outerWidth(), bottomView);
+          controlClass(that, 'toggle');
         });
-        $('.hl-sel-dropdown').off('click.li').on('click.li', 'li', function(e){
-          selectTextDropdown(element, $(this));
+        that.ulTag.off('click.li').on('click.li', 'li', function(){
+          selectTextDropdown.call(this, that);
         });
-      }
     },
     publicMethod: function(params) {
 
