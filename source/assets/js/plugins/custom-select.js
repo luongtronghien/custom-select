@@ -16,33 +16,36 @@
   var pluginName = 'hl-select';
   var privateVar = null;
 
-  function createList(options, ul){
-    var that = $(this);
-    var list = [];
+  function initStructure(select, outer, span, arrow){
+    select
+      .wrap(outer)
+      .before(span)
+      .before(arrow);
+  }
+
+  function createList(select){
+    var options = $(select).find('option'),
+      ul = '<ul class="hl-sel-dropdown hl-hidden"></ul>',
+      list = [];
+
     for(i = 0, len = options.length; i < len; i++){
       var getOption = $(options[i]);
       li = '<li data-text-option="' + getOption.attr('value') + '" class="' + (getOption.is(':selected') ? 'active' : '') + '">' + getOption.text() + '</li>';
       list.push(li);
     }
+
     $('body').append($(ul).append(list));
   }
 
-  function createWrap(selectBox, div, span, link){
-    selectBox
-    .wrap(div)
-    .before(span)
-    .before(link);
-  }
-
-  function styleDropdown(dropdowClass, x, y, heightE, widthE, bottomView){
-    if($(dropdowClass).outerHeight() > bottomView){
-      $(dropdowClass).css({
+  function styleDropdown(x, y, heightE, widthE, bottomView){
+    if($('.hl-sel-dropdown').outerHeight() > bottomView){
+      $('.hl-sel-dropdown').css({
         'left': x,
-        'top': y - $(dropdowClass).outerHeight(),
+        'top': y - $('.hl-sel-dropdown').outerHeight(),
         'minWidth': widthE
       }).addClass('top');  
     }else{
-      $(dropdowClass).css({
+      $('.hl-sel-dropdown').css({
         'left': x,
         'top': y + heightE,
         'minWidth': widthE
@@ -50,8 +53,8 @@
     }
   }
 
-  function showHideDropdown(dropdowClass, className, status){
-    var dropDown = $(dropdowClass);
+  function showHideDropdown(className, status){
+    var dropDown = $('.hl-sel-dropdown');
     if(status){
       if(status === false){
         dropDown.removeClass(className);
@@ -63,15 +66,19 @@
     }
   }
 
-  function loadText(sel, span){
-    var options = $(sel).find('option');
+  function loadText(select){
+    var that = $(select), 
+      options = that.find('option'),
+      span = that.siblings('span');
     $(span).text(options.filter(function(){
       return $(this).is(':selected');
     }).text());
   }
 
-  function selectTextDropdown(sel, span, self, li, dropdowClass){
-    var options = $(sel).find('option');
+  function selectTextDropdown(select, self){
+    var that = $(select),
+      options = that.find('option'),
+      span = that.siblings('span');
     $(span).text(self.text());
     $(options).attr('selected', false);
     for(var i = 0, len = options.length; i < len; i++){
@@ -79,9 +86,9 @@
         $(options[i]).attr('selected', true);
       }
     }
-    $(li).removeClass('active');
+    $(self).siblings('li').removeClass('active');
     self.addClass('active');
-    showHideDropdown(dropdowClass, 'hl-hidden', true);
+    showHideDropdown('hl-hidden', true);
   }
 
   function Plugin(element, options) {
@@ -96,21 +103,20 @@
         element = that.element,
         classWrap = that.options.classWrap,
         selectText = that.options.selectText,
-        dropdowClass = that.options.dropdowClass,
-        wrap = '<div class="' + classWrap + '"></div>',
-        link = '<a href="javascript:void(0);">&nbsp;</a>',
-        span = '<span>' + selectText + '</span>',
-        ul = '<ul class="' + dropdowClass + ' hl-hidden"></ul>',
-        options = element.find('option');
-            
+        outer = '<div class="' + classWrap + '"></div>',
+        arrow = '<a href="javascript:void(0);">&nbsp;</a>',
+        span = '<span>' + selectText + '</span>';
+
+        console.log($(element).length);
+
       if(element.length){
-        createWrap(element, wrap, span, link);
-        createList(options, ul);
-        loadText(element, '.' + classWrap + '> span');
-        $('html').on('click', function(event){
+        initStructure(element, outer, span, arrow);
+        createList(element);
+        loadText(element);
+        $('html').off('click.out').on('click.out', function(event){
           var target = $(event.target).closest('.' + classWrap);
           if(target.length < 1){
-            showHideDropdown('.' + dropdowClass, 'hl-hidden', true);
+            showHideDropdown('hl-hidden', true);
           }
         });
         element.parent().on('click', function(event){
@@ -121,20 +127,20 @@
             bottomView = $(window).height() - topView - that.outerHeight();
 
           $(window).on('resize', function(){
-            var statusDrop = $('.' + dropdowClass).is(':visible');
+            var statusDrop = $('.hl-sel-dropdown').is(':visible');
             if(statusDrop){
               leftE = that.offset().left;
               topE = that.offset().top;
               topView = topE - $(window).scrollTop();
               bottomView = $(window).height() - topView - that.outerHeight();
-              styleDropdown('.' + dropdowClass, leftE, topE, that.outerHeight(), that.outerWidth(), bottomView);
+              styleDropdown(leftE, topE, that.outerHeight(), that.outerWidth(), bottomView);
             }
           });
-          styleDropdown('.' + dropdowClass, leftE, topE, that.outerHeight(), that.outerWidth(), bottomView);
-          showHideDropdown('.' + dropdowClass, 'hl-hidden');
+          styleDropdown(leftE, topE, that.outerHeight(), that.outerWidth(), bottomView);
+          showHideDropdown('hl-hidden');
         });
-        $('.' + dropdowClass).on('click.li', 'li', function(e){
-          selectTextDropdown(element, '.' + classWrap + '> span', $(this), '.' + dropdowClass + '> li', '.' + dropdowClass);
+        $('.hl-sel-dropdown').off('click.li').on('click.li', 'li', function(e){
+          selectTextDropdown(element, $(this));
         });
       }
     },
@@ -161,8 +167,7 @@
 
   $.fn[pluginName].defaults = {
     selectText: 'Select',
-    classWrap: 'hl-select',
-    dropdowClass: 'hl-sel-dropdown'
+    classWrap: 'hl-select'
   };
 
   $(function() {
