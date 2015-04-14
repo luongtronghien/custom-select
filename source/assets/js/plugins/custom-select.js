@@ -1,5 +1,5 @@
 /**
- *  @name hl-select
+ *  @name customSelect
  *  @description description
  *  @version 1.0
  *  @options
@@ -13,20 +13,25 @@
 
  */
 ;(function($, window, undefined) {
-  var pluginName = 'hl-select';
+  var pluginName = 'customSelect';
   var privateVar = null;
 
-  function initStructure(that, outer, span, arrow){
-    var select = that.element;
-    select
-      .wrap(outer)
+  function initStructure(that){
+    var text = that.options.selectText,
+        wrapSL = that.options.wrapSL,
+        div = '<div class="' + wrapSL + '"></div>',
+        arrow = '<a href="javascript:void(0);"></a>',
+        span = '<span>' + text + '</span>';
+
+    that.element
+      .wrap(div)
       .before(span)
       .before(arrow);
   }
 
   function createList(that){
     var select = that.element;
-    var options = $(select).find('option'),
+    var options = select.find('option'),
       ul = '<ul class="hl-sel-dropdown hl-hidden"></ul>',
       list = [],
       len = options.length;
@@ -41,16 +46,18 @@
   }
 
   function positionDropdown(that, posX, posY, heightS, widthS, bottomView){
-    var ul = that.ulTag,
-      heightUl = ul.outerHeight();
+    var list = $(that.ulTag),
+        heightUl = list.outerHeight();
+      console.log(list);
     if(heightUl > bottomView){
-      $(ul).css({
+      list.css({
         'left': posX,
         'top': posY - heightUl,
         'minWidth': widthS
       }).addClass('top');
-    }else{
-      $(ul).css({
+    }
+    else {
+      list.css({
         'left': posX,
         'top': posY + heightS,
         'minWidth': widthS
@@ -110,44 +117,57 @@
     init: function() {
       var that = this,
         element = that.element,
-        doc = $(document);
-        classWrap = that.options.classWrap,
-        selectText = that.options.selectText,
-        outer = '<div class="' + classWrap + '"></div>',
-        arrow = '<a href="javascript:void(0);">&nbsp;</a>',
-        span = '<span>' + selectText + '</span>';
+        wrapSL = that.options.wrapSL,
+        doc = $(document),
+        win = $(window),
+        list = that.ulTag,
+        target,
+        wrap = that.wrapper,
+        posX = 0,
+        posY = 0,
+        topView = 0,
+        heightWrap = 0,
+        widthWrap = 0;
 
-        initStructure(that, outer, span, arrow);
-        that.wrapper = element.parent();
-        createList(that);
-        loadText(element);
+      initStructure(that);
+      wrap = element.parent('.' + wrapSL);
 
-        that.wrapper.off('click.wrap').on('click.wrap', function() {
+      createList(that);
+      loadText(element);
+      posX = wrap.offset().left;
+      posY = wrap.offset().top;
+      topView = posY - win.scrollTop();
+      heightWrap = wrap.outerHeight();
+      widthWrap = wrap.outerWidth();
+      bottomView = win.height() - topView - heightWrap;
+
+        wrap.off('click.wrap').on('click.wrap', function() {
           doc.off('click.out').on('click.out', function(evt){
-            var target = $(evt.target).closest('.' + classWrap);
+            $('.hl-sel-dropdown').not(that.ulTag).addClass('hl-hidden');
+
+            target = $(evt.target).closest('.' + wrapSL);
             if(target.length < 1){
               controlClass(that, 'add');
             }
           });
 
-          var wrapper = $(this),
-            posX = wrapper.offset().left,
-            posY = wrapper.offset().top,
-            topView = posY - $(window).scrollTop(),
-            bottomView = $(window).height() - topView - wrapper.outerHeight();
+          // var wrapper = $(this),
+          //   posX = wrapper.offset().left,
+          //   posY = wrapper.offset().top,
+          //   topView = posY - $(window).scrollTop(),
+          //   bottomView = $(window).height() - topView - wrapper.outerHeight();
 
-          $(window).off('resize.drop').on('resize.drop', function(){
-            var statusDrop = $(that.ulTag).is(':visible');
-            if(statusDrop){
-              posX = wrapper.offset().left;
-              posY = wrapper.offset().top;
-              topView = posY - $(window).scrollTop();
-              bottomView = $(window).height() - topView - wrapper.outerHeight();
-              positionDropdown(that, posX, posY, wrapper.outerHeight(), wrapper.outerWidth(), bottomView);
-            }
-          });
+          // $(window).off('resize.drop').on('resize.drop', function(){
+          //   if($(list).is(':visible')){
+          //     posX = wrap.offset().left;
+          //     posY = wrap.offset().top;
+          //     topView = posY - win.scrollTop();
+          //     bottomView = win.height() - topView - wrap.outerHeight();
+          //     positionDropdown(that, posX, posY, wrap.outerHeight(), wrap.outerWidth(), bottomView);
+          //   }
+          // });
 
-          positionDropdown(that, posX, posY, wrapper.outerHeight(), wrapper.outerWidth(), bottomView);
+          positionDropdown(that, posX, posY, heightWrap, widthWrap, bottomView);
           controlClass(that, 'toggle');
         });
         that.ulTag.off('click.li').on('click.li', 'li', function(){
@@ -177,7 +197,7 @@
 
   $.fn[pluginName].defaults = {
     selectText: 'Select',
-    classWrap: 'hl-select'
+    wrapSL: 'hl-select'
   };
 
   $(function() {
