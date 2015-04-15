@@ -14,7 +14,6 @@
  */
 ;(function($, window, undefined) {
   var pluginName = 'customSelect';
-  var privateVar = null;
 
   function initStructure(that){
     var text = that.options.selectText,
@@ -32,43 +31,51 @@
   function createDropdown(that){
     var element = that.element,
         options = that.options,
-        optionSL = element.find('option'),
         dropdowClass = options.dropdowClass,
         hiddenClass = options.hiddenClass,
-        ul = '<ul class="' + dropdowClass + ' ' + hiddenClass + '"></ul>',
+        groupOptionClass = options.optGroupClass,
+        listOptionClass = options.listOptionClass,
+        dropdown = '<ul class="' + dropdowClass + ' ' + hiddenClass + '"></ul>',
+        selList = '<ul class="' + listOptionClass + '"></ul>',
+        groupOption = element.find('optgroup'),
+        selOption = element.find('option'),
+        getGroup = [],
         getOption = [],
-        listLI = [],
-        len = optionSL.length,
-        opt,
-        optSL = element.find('optgroup'),
-        optGroup = options.optGroupClass,
-        getOpt = [],
+        arrDropdown = [],
+        arrList = [],
+        groupItem = '',
+        arrGroupItem = [],
         listOpt = [],
-        optionGr,
+        optionInGr,
         getOptionGr = [],
-        listLiGr = [];
+        listUlGr = [],
+        ulTag = [];
 
-    if(optSL.length){
-      for(var j = 0; j < optSL.length; j++){
-        getOpt = $(optSL[j]);
-        opt = '<li class="' + optGroup + '"><strong>' + getOpt.attr('name') + '</strong></li>';
-        listOpt.push(opt);
-        optionGr = getOpt.find('option'),
-        for(var i = 0; i < optionGr.length; i++){
-          getOptionGr = $(optionGr[i]);
-          liGr = '<li data-option="' + getOptionGr.attr('value') + '" class="' + (getOptionGr.is(':selected') ? 'active' : '') + '">' + getOptionGr.text() + '</li>';
-          listLiGr.push(liGr);
+    if(groupOption.length){
+      for(var j = 0; j < groupOption.length; j++){
+        getGroup = $(groupOption[j]);
+        optionInGr = getGroup.find('option');
+
+        for(var i = 0; i < optionInGr.length; i++){
+          getOptionGr = $(optionInGr[i]);
+          liInList = '<li data-option="' + getOptionGr.attr('value') + '" class="' + (getOptionGr.is(':selected') ? 'active' : '') + '">' + getOptionGr.text() + '</li>';
+          listUlGr.push(liInList);
         }
-        that.ulDrop = $(listOpt).append(listLiGr);
+
+        arrList = $(selList).append(listUlGr);
+        groupItem = '<li class="' + groupOptionClass + '"><strong>' + getGroup.attr('label') + '</strong></li>';
+        arrGroupItem = $(groupItem).append(arrList);
+        listOpt.push(arrGroupItem);
       }
+      that.ulDrop = $(dropdown).append(listOpt);
     }
     else {
-      for(var i = 0; i < len; i++){
-        getOption = $(optionSL[i]);
+      for(var k = 0; k < selOption.length; k++){
+        getOption = $(selOption[k]);
         li = '<li data-option="' + getOption.attr('value') + '" class="' + (getOption.is(':selected') ? 'active' : '') + '">' + getOption.text() + '</li>';
-        listLI.push(li);
+        arrDropdown.push(li);
       }
-      that.ulDrop = $(ul).append(listLI);
+      that.ulDrop = $(dropdown).append(arrDropdown);
     }
     $('body').append(that.ulDrop);
   }
@@ -109,13 +116,13 @@
         hiddenClass = that.options.hiddenClass;
 
     getSpan.text(self.text());
-    $(optionSL).attr('selected', false);
+    optionSL.attr('selected', false);
     for(var i = 0, len = optionSL.length; i < len; i++){
       if(i === self.index()){
         $(optionSL[i]).attr('selected', true);
       }
     }
-    $(self).siblings('li').removeClass('active');
+    self.siblings('li').removeClass('active');
     self.addClass('active');
     that.hideSL(that.ulDrop, hiddenClass);
   }
@@ -218,7 +225,8 @@
     wrapClass: 'sel-custom',
     dropdowClass: 'sel-dropdown',
     hiddenClass: 'sel-hidden',
-    optGroupClass: 'opt-group'
+    optGroupClass: 'sel-group',
+    listOptionClass: 'sel-list'
   };
 
   $(function() {
