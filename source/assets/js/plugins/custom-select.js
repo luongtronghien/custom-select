@@ -30,29 +30,52 @@
   }
 
   function createDropdown(that){
-    var select = that.element,
+    var element = that.element,
         options = that.options,
-        optionSL = select.find('option'),
+        optionSL = element.find('option'),
         dropdowClass = options.dropdowClass,
         hiddenClass = options.hiddenClass,
         ul = '<ul class="' + dropdowClass + ' ' + hiddenClass + '"></ul>',
+        getOption = [],
         listLI = [],
         len = optionSL.length,
-        listUL;
+        opt,
+        optSL = element.find('optgroup'),
+        optGroup = options.optGroupClass,
+        getOpt = [],
+        listOpt = [],
+        optionGr,
+        getOptionGr = [],
+        listLiGr = [];
 
-    for(var i = 0; i < len; i++){
-      var getOption = $(optionSL[i]);
-      li = '<li data-option="' + getOption.attr('value') + '" class="' + (getOption.is(':selected') ? 'active' : '') + '">' + getOption.text() + '</li>';
-      listLI.push(li);
+    if(optSL.length){
+      for(var j = 0; j < optSL.length; j++){
+        getOpt = $(optSL[j]);
+        opt = '<li class="' + optGroup + '"><strong>' + getOpt.attr('name') + '</strong></li>';
+        listOpt.push(opt);
+        optionGr = getOpt.find('option'),
+        for(var i = 0; i < optionGr.length; i++){
+          getOptionGr = $(optionGr[i]);
+          liGr = '<li data-option="' + getOptionGr.attr('value') + '" class="' + (getOptionGr.is(':selected') ? 'active' : '') + '">' + getOptionGr.text() + '</li>';
+          listLiGr.push(liGr);
+        }
+        that.ulDrop = $(listOpt).append(listLiGr);
+      }
     }
-    that.ulDrop = listUL = $(ul).append(listLI);
-    $('body').append(listUL);
+    else {
+      for(var i = 0; i < len; i++){
+        getOption = $(optionSL[i]);
+        li = '<li data-option="' + getOption.attr('value') + '" class="' + (getOption.is(':selected') ? 'active' : '') + '">' + getOption.text() + '</li>';
+        listLI.push(li);
+      }
+      that.ulDrop = $(ul).append(listLI);
+    }
+    $('body').append(that.ulDrop);
   }
 
   function positionDropdown(that, posX, posY, heightS, widthS, bottomView){
     var ulDrop = that.ulDrop,
         heightUl = ulDrop.outerHeight();
-    console.log(heightUl);
     if(heightUl > bottomView){
       ulDrop.css({
         'left': posX,
@@ -66,21 +89,6 @@
         'top': posY + heightS,
         'minWidth': widthS
       }).removeClass('top');
-    }
-  }
-
-  function controlClass(that, status){
-    var dropDown = that.ulTag;
-    if(status !== 'toggle'){
-      if(status === 'remove'){
-        dropDown.removeClass('hl-hidden');
-      }
-      else {
-        dropDown.addClass('hl-hidden');
-      }
-    }
-    else {
-      dropDown.toggleClass('hl-hidden');
     }
   }
 
@@ -125,12 +133,10 @@
         options = that.options,
         wrapClass = options.wrapClass,
         hiddenClass = options.hiddenClass,
-        doc = $(document),
-        win = $(window),
-        // list = that.ulTag,
+        dropdowClass = options.dropdowClass,
+        $document = $(document),
+        $window = $(window),
         target,
-        // wrap = that.wrapper,
-
         wrapSL,
         ulDrop,
         posX = 0,
@@ -139,77 +145,48 @@
         heightWrap = 0,
         widthWrap = 0;
 
+      var changepositionDropdown = function(){
+        posX = wrapSL.offset().left;
+        posY = wrapSL.offset().top;
+        topView = posY - $window.scrollTop();
+        heightWrap = wrapSL.outerHeight();
+        widthWrap = wrapSL.outerWidth();
+        bottomView = $window.height() - topView - heightWrap;
+        positionDropdown(that, posX, posY, heightWrap, widthWrap, bottomView);
+      };
+
       initStructure(that);
       loadText(that);
       createDropdown(that);
       wrapSL = element.parent();
       ulDrop = that.ulDrop;
-      
-      posX = wrapSL.offset().left;
-      posY = wrapSL.offset().top;
-      topView = posY - win.scrollTop();
-      heightWrap = wrapSL.outerHeight();
-      widthWrap = wrapSL.outerWidth();
 
-      bottomView = win.height() - topView - heightWrap;
-
-      positionDropdown(that, posX, posY, heightWrap, widthWrap, bottomView);
+      changepositionDropdown();
 
       wrapSL.off('click.sel').on('click.sel', function(e) {
         e.preventDefault();
+        e.stopPropagation();
+
+        changepositionDropdown();
+
+        $('.' + dropdowClass).not(ulDrop).not(':hidden').addClass(hiddenClass);
+
         ulDrop.toggleClass(hiddenClass);
 
         ulDrop.off('click.li').on('click.li', 'li', function(e){
+          e.stopPropagation();
           selectTextDropdown.call(this, that);
         });
-
-        // if(ulDrop.hasClass(hiddenClass)){
-        //   that.showSL(ulDrop, hiddenClass);
-        // }
-        // else {
-        //   that.hideSL(ulDrop, hiddenClass);
-        // }
-        
-        // doc.off('click.out').on('click.out', function(evt){
-        //   $('.hl-sel-dropdown').not(that.ulTag).addClass('hl-hidden');
-
-        //   target = $(evt.target).closest('.' + wrapClass);
-        //   if(target.length < 1){
-        //     controlClass(that, 'add');
-        //   }
-        // });
-
-        // var wrapper = $(this),
-        //   posX = wrapper.offset().left,
-        //   posY = wrapper.offset().top,
-        //   topView = posY - $(window).scrollTop(),
-        //   bottomView = $(window).height() - topView - wrapper.outerHeight();
-
-        // $(window).off('resize.drop').on('resize.drop', function(){
-        //   if($(list).is(':visible')){
-        //     posX = wrap.offset().left;
-        //     posY = wrap.offset().top;
-        //     topView = posY - win.scrollTop();
-        //     bottomView = win.height() - topView - wrap.outerHeight();
-        //     positionDropdown(that, posX, posY, wrap.outerHeight(), wrap.outerWidth(), bottomView);
-        //   }
-        // });
-
-        // positionDropdown(that, posX, posY, heightWrap, widthWrap, bottomView);
-        // controlClass(that, 'toggle');
       });
-      // that.ulTag.off('click.li').on('click.li', 'li', function(){
-      //   selectTextDropdown.call(this, that);
-      // });
-      win.off('resize.sel').on('resize.sel', function(){
+
+      $window.on('resize.sel', function(){
         if(ulDrop.is(':visible')){
-          posX = wrapSL.offset().left;
-          posY = wrapSL.offset().top;
-          topView = posY - win.scrollTop();
-          heightWrap = wrapSL.outerHeight();
-          widthWrap = wrapSL.outerWidth();
-          positionDropdown(that, posX, posY, heightWrap, widthWrap, bottomView);
+          changepositionDropdown();
         }
+      });
+
+      $document.off('click.out').on('click.out', function(e){
+        $('.' + dropdowClass).not(':hidden').addClass(hiddenClass);
       });
     },
     showSL: function(ulDrop, className) {
@@ -240,7 +217,8 @@
     selectText: 'Select...',
     wrapClass: 'sel-custom',
     dropdowClass: 'sel-dropdown',
-    hiddenClass: 'sel-hidden'
+    hiddenClass: 'sel-hidden',
+    optGroupClass: 'opt-group'
   };
 
   $(function() {
