@@ -46,13 +46,15 @@
         groupItem = '',
         arrGroupItem = [],
         listOpt = [],
-        optionInGr,
+        optionInGr = $(),
         getOptionGr = [],
         listUlGr = [],
         ulTag = [];
 
     if(groupOption.length){
       for(var j = 0; j < groupOption.length; j++){
+        listUlGr = [];
+
         getGroup = $(groupOption[j]);
         optionInGr = getGroup.find('option');
 
@@ -81,20 +83,31 @@
   }
 
   function positionDropdown(that, posX, posY, heightS, widthS, bottomView){
-    var ulDrop = that.ulDrop,
+    var options = that.options,
+        maxHeightDropdown = options.maxHeightDropdown,
+        ulDrop = that.ulDrop,
         heightUl = ulDrop.outerHeight();
+
+    // var functionA = function(){
+    //   ulDrop
+    // };
+
     if(heightUl > bottomView){
       ulDrop.css({
         'left': posX,
         'top': posY - heightUl,
-        'minWidth': widthS
+        'minWidth': widthS,
+        'max-height': (maxHeightDropdown) ? maxHeightDropdown : '',
+        'overflow-y': 'scroll'
       }).addClass('top');
     }
     else {
       ulDrop.css({
         'left': posX,
         'top': posY + heightS,
-        'minWidth': widthS
+        'minWidth': widthS,
+        'max-height': (maxHeightDropdown) ? maxHeightDropdown : '',
+        'overflow-y': 'scroll'
       }).removeClass('top');
     }
   }
@@ -111,6 +124,7 @@
   function selectTextDropdown(that){
     var self = $(this),
         element = that.element,
+        dropdowClass = that.options.dropdowClass,
         optionSL = element.find('option'),
         getSpan = element.siblings('span'),
         hiddenClass = that.options.hiddenClass;
@@ -122,9 +136,9 @@
         $(optionSL[i]).attr('selected', true);
       }
     }
-    self.siblings('li').removeClass('active');
+    self.closest('.' + dropdowClass).find('li').removeClass('active');
     self.addClass('active');
-    that.hideSL(that.ulDrop, hiddenClass);
+    that.hideDropDown();
   }
 
   function Plugin(element, options) {
@@ -178,9 +192,13 @@
 
         $('.' + dropdowClass).not(ulDrop).not(':hidden').addClass(hiddenClass);
 
-        ulDrop.toggleClass(hiddenClass);
+        if(ulDrop.hasClass(hiddenClass)){
+          that.showDropDown();
+        }else{
+          that.hideDropDown();
+        }
 
-        ulDrop.off('click.li').on('click.li', 'li', function(e){
+        ulDrop.off('click.li').on('click.li', 'li[data-option]', function(e){
           e.stopPropagation();
           selectTextDropdown.call(this, that);
         });
@@ -192,15 +210,44 @@
         }
       });
 
-      $document.off('click.out').on('click.out', function(e){
-        $('.' + dropdowClass).not(':hidden').addClass(hiddenClass);
+      $document.on('click.out', function(e){
+        $('.' + dropdowClass).addClass(hiddenClass);
+        // that.hideDropDown();
       });
     },
-    showSL: function(ulDrop, className) {
-      ulDrop.removeClass(className);
+    showDropDown: function() {
+      var that = this,
+        options = that.options,
+        hiddenClass = options.hiddenClass,
+        duration = options.duration,
+        onShowDopDown = options.onShowDopDown,
+        ulDrop = that.ulDrop;
+
+      ulDrop
+        .stop()
+        .slideDown(duration)
+        .removeClass(hiddenClass);
+
+      if ($.isFunction(onShowDopDown)) {
+        onShowDopDown();
+      }
     },
-    hideSL: function(ulDrop, className) {
-      ulDrop.addClass(className);
+    hideDropDown: function() {
+      var that = this,
+        options = that.options,
+        hiddenClass = options.hiddenClass,
+        duration = options.duration,
+        onHideDopDown = options.onHideDopDown,
+        ulDrop = that.ulDrop;
+
+      ulDrop
+        .stop()
+        .slideUp(duration)
+        .addClass(hiddenClass);
+
+      if($.isFunction(onHideDopDown)){
+        onHideDopDown();
+      }
     },
     destroy: function() {
       $.removeData(this.element[0], pluginName);
@@ -226,11 +273,22 @@
     dropdowClass: 'sel-dropdown',
     hiddenClass: 'sel-hidden',
     optGroupClass: 'sel-group',
-    listOptionClass: 'sel-list'
+    listOptionClass: 'sel-list',
+    duration: 500, // Default
+    maxHeightDropdown: 100
   };
 
   $(function() {
-    $('[data-' + pluginName + ']')[pluginName]();
+    $('[data-' + pluginName + ']')[pluginName]({
+      onShowDopDown: function(){
+
+      },
+      onHideDopDown: function(){
+
+      }
+    });
+
+
   });
 
 }(jQuery, window));
