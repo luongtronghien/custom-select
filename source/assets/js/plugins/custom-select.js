@@ -16,8 +16,9 @@
   var pluginName = 'customSelect';
 
   function initStructure(that){
-    var text = that.options.selectText,
-        wrapClass = that.options.wrapClass,
+    var options = that.options,
+        text = options.selectText,
+        wrapClass = options.wrapClass,
         div = '<div class="' + wrapClass + '"></div>',
         arrow = '<a href="javascript:void(0);"></a>',
         span = '<span>' + text + '</span>';
@@ -88,10 +89,6 @@
         ulDrop = that.ulDrop,
         heightUl = ulDrop.outerHeight();
 
-    // var functionA = function(){
-    //   ulDrop
-    // };
-
     if(heightUl > bottomView){
       ulDrop.css({
         'left': posX,
@@ -155,11 +152,13 @@
         wrapClass = options.wrapClass,
         hiddenClass = options.hiddenClass,
         dropdowClass = options.dropdowClass,
+        duration = options.duration,
         $document = $(document),
         $window = $(window),
         target,
         wrapSL,
         ulDrop,
+        link,
         posX = 0,
         posY = 0,
         topView = 0,
@@ -190,7 +189,9 @@
 
         changepositionDropdown();
 
-        $('.' + dropdowClass).not(ulDrop).not(':hidden').addClass(hiddenClass);
+        $('.' + dropdowClass).not(ulDrop)
+          .slideUp(duration)
+          .addClass(hiddenClass);
 
         if(ulDrop.hasClass(hiddenClass)){
           that.showDropDown();
@@ -204,6 +205,17 @@
         });
       });
 
+      link = wrapSL.children('a');
+      link
+        .on('focus', function(){
+          $(this).parent()
+            .addClass('sel-focus')
+            .trigger('click.li');
+        })
+        .on('blur', function(){
+          $(this).parent().removeClass('sel-focus');
+        });
+
       $window.on('resize.sel', function(){
         if(ulDrop.is(':visible')){
           changepositionDropdown();
@@ -211,8 +223,9 @@
       });
 
       $document.on('click.out', function(e){
-        $('.' + dropdowClass).addClass(hiddenClass);
-        // that.hideDropDown();
+        $('.' + dropdowClass)
+          .slideUp(duration)
+          .addClass(hiddenClass);
       });
     },
     showDropDown: function() {
@@ -274,7 +287,7 @@
     hiddenClass: 'sel-hidden',
     optGroupClass: 'sel-group',
     listOptionClass: 'sel-list',
-    duration: 500, // Default
+    duration: 0, // Default
     maxHeightDropdown: 100
   };
 

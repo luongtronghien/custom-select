@@ -4,28 +4,9 @@ block vars
   -title = 'Sprite'
 
 block container
-  h2 Icon
-  h2 Text
-  h2 Button
-  h2 Form
-  ul.list-input
-    li
-      +custom-input({id: 'custom-cb', label: 'Nguyen van A', type: 'checkbox'}, {'data-custom-input': 'true', 'class': 'checkbox-group'}, {checked: 'checked'}).checkbox-1
-    li
-      +custom-input({id: 'custom-cb-1', label: 'Nguyen van B', type: 'checkbox'}, {'data-custom-input': 'true', 'class': 'checkbox-group'}).checkbox-1
-    li
-      +custom-input({id: 'custom-cb-2', label: 'Nguyen van C', type: 'checkbox'}, {'data-custom-input': 'true', 'class': 'checkbox-group'}).checkbox-1
-    li
-      label Like:
-      +custom-input({id: 'custom-rd', label: 'Facebook', type: 'radio', name: 'like-rd'}, {'data-custom-input': 'true', 'class': 'radio-group'}, {checked: 'checked'}).radio-1
-      +custom-input({id: 'custom-rd-1', label: 'Twitter', type: 'radio', name: 'like-rd'}, {'data-custom-input': 'true', 'class': 'radio-group'}).radio-1
-      +custom-input({id: 'custom-rd-2', label: 'Youtube', type: 'radio', name: 'like-rd'}, {'data-custom-input': 'true', 'class': 'radio-group'}).radio-1
   h2 Custom Select
   .demo-1
     +select(['Nguyen Van A', 'Nguyen Van B', 'Nguyen Van C', 'Nguyen Van D', 'Nguyen Van E', 'Nguyen Van F'], 1)#sel-fullname(name="sel-fullname", data-customselect="true")
-  h2 Custom Select Group
-  .demo-1
     +select([{label: 'Name', groupDetails: ['Nguyen Van A', 'Nguyen Van B']}, {label: 'Job', groupDetails: ['HTML', 'Javascript'], selected: 1}])#sel-job(name="sel-job", data-customselect="true")
-  .demo-1
     +select([{label: 'Name', groupDetails: ['Nguyen Van D', 'Nguyen Van R']}, {label: 'Job', groupDetails: ['MOBILE', 'ANDROID']}])#sel-jobi(name="sel-jobi", data-customselect="true")
 
