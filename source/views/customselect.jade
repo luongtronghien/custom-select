@@ -1,0 +1,12 @@
+extends layouts/template
+
+block vars
+  -title = 'Sprite'
+
+block container
+  h2 Custom Select
+  .demo-1
+    +select(['Nguyen Van A', 'Nguyen Van B', 'Nguyen Van C', 'Nguyen Van D', 'Nguyen Van E', 'Nguyen Van F'], 1)#sel-fullname(name="sel-fullname", data-customselect="true")
+    +select([{label: 'Name', groupDetails: ['Nguyen Van A', 'Nguyen Van B']}, {label: 'Job', groupDetails: ['HTML', 'Javascript'], selected: 1}])#sel-job(name="sel-job", data-customselect="true")
+    +select([{label: 'Name', groupDetails: ['Nguyen Van D', 'Nguyen Van R']}, {label: 'Job', groupDetails: ['MOBILE', 'ANDROID']}])#sel-jobi(name="sel-jobi", data-customselect="true")
+

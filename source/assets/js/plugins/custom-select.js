@@ -2,18 +2,31 @@
  *  @name customSelect
  *  @description description
  *  @version 1.0
+
  *  @options
- *    option
+      selectText: 'Select...',
+      wrapClass: 'sel-custom',
+      dropdowClass: 'sel-dropdown',
+      hiddenClass: 'sel-hidden',
+      optGroupClass: 'sel-group',
+      listOptionClass: 'sel-list',
+      duration: 0, // Default
+      maxHeightDropdown: null, //100,
+      onShowDopDown: function(){},
+      onHideDopDown: function(){}
  *  @events
- *    event
+
  *  @methods
- *    init
- *    publicMethod
- *    destroy
+      init
+      showDropDown
+      hideDropDown
+      destroy
 
  */
 ;(function($, window, undefined) {
-  var pluginName = 'customSelect';
+  var pluginName = 'customSelect',
+    doc = $(document),
+    win = $(window);
 
   function initStructure(that){
     var options = that.options,
@@ -89,13 +102,16 @@
         ulDrop = that.ulDrop,
         heightUl = ulDrop.outerHeight();
 
+    if(maxHeightDropdown){
+      ulDrop.css('overflow-y', 'scroll');
+    }
+
     if(heightUl > bottomView){
       ulDrop.css({
         'left': posX,
         'top': posY - heightUl,
         'minWidth': widthS,
         'max-height': (maxHeightDropdown) ? maxHeightDropdown : '',
-        'overflow-y': 'scroll'
       }).addClass('top');
     }
     else {
@@ -104,7 +120,6 @@
         'top': posY + heightS,
         'minWidth': widthS,
         'max-height': (maxHeightDropdown) ? maxHeightDropdown : '',
-        'overflow-y': 'scroll'
       }).removeClass('top');
     }
   }
@@ -153,8 +168,6 @@
         hiddenClass = options.hiddenClass,
         dropdowClass = options.dropdowClass,
         duration = options.duration,
-        $document = $(document),
-        $window = $(window),
         target,
         wrapSL,
         ulDrop,
@@ -168,10 +181,10 @@
       var changepositionDropdown = function(){
         posX = wrapSL.offset().left;
         posY = wrapSL.offset().top;
-        topView = posY - $window.scrollTop();
+        topView = posY - win.scrollTop();
         heightWrap = wrapSL.outerHeight();
         widthWrap = wrapSL.outerWidth();
-        bottomView = $window.height() - topView - heightWrap;
+        bottomView = win.height() - topView - heightWrap;
         positionDropdown(that, posX, posY, heightWrap, widthWrap, bottomView);
       };
 
@@ -180,8 +193,6 @@
       createDropdown(that);
       wrapSL = element.parent();
       ulDrop = that.ulDrop;
-
-      changepositionDropdown();
 
       wrapSL.off('click.sel').on('click.sel', function(e) {
         e.preventDefault();
@@ -200,8 +211,10 @@
         }
 
         ulDrop.off('click.li').on('click.li', 'li[data-option]', function(e){
-          e.stopPropagation();
           selectTextDropdown.call(this, that);
+        });
+        ulDrop.off('click.drop').on('click.drop', function(e){
+          e.stopPropagation();
         });
       });
 
@@ -216,13 +229,13 @@
           $(this).parent().removeClass('sel-focus');
         });
 
-      $window.on('resize.sel', function(){
+      win.on('resize.sel', function(){
         if(ulDrop.is(':visible')){
           changepositionDropdown();
         }
       });
 
-      $document.on('click.out', function(e){
+      doc.on('click.out', function(e){
         $('.' + dropdowClass)
           .slideUp(duration)
           .addClass(hiddenClass);
@@ -263,6 +276,16 @@
       }
     },
     destroy: function() {
+      var that = this,
+        element = that.element;
+
+      that.ulDrop.remove();
+      element
+        .siblings()
+        .remove()
+        .end()
+        .unwrap();
+
       $.removeData(this.element[0], pluginName);
     }
   };
@@ -287,21 +310,14 @@
     hiddenClass: 'sel-hidden',
     optGroupClass: 'sel-group',
     listOptionClass: 'sel-list',
-    duration: 0, // Default
-    maxHeightDropdown: 100
+    duration: 500, // Default
+    maxHeightDropdown: null, //100,
+    onShowDopDown: function(){},
+    onHideDopDown: function(){}
   };
 
   $(function() {
-    $('[data-' + pluginName + ']')[pluginName]({
-      onShowDopDown: function(){
-
-      },
-      onHideDopDown: function(){
-
-      }
-    });
-
-
+    $('[data-' + pluginName + ']')[pluginName]();
   });
 
 }(jQuery, window));
